@@ -36,4 +36,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function roles(){
+        return $this->belongsToMany('App\Roles', 'role_user', 'user_id', 'role_id');
+    }
+
+    public function responsibleTasks(){
+        return $this->belongsToMany('App\Task', 'responsibles', 'responsible_id', 'tasks_id');
+    }
+    public function producerTasks(){
+        return $this->belongsToMany('App\Task', 'producers', 'producer_id', 'tasks_id');
+    }
+
 }
