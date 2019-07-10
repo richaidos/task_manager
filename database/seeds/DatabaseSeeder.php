@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now()
         ]);
 
+
         /* -- Users -- */
         DB::table('users')->insert([
             'id' => 1,
@@ -132,7 +133,7 @@ class DatabaseSeeder extends Seeder
         DB::table('tasks')->insert([
             'id' => 4,
             'title' => 'Исправить работу уведомлении',
-            'slug' => '',
+            'slug' => 'ispravit_raboty_uv',
             'role' => 3,
             'deadline' => Carbon::parse('2019-09-07')
         ]);
