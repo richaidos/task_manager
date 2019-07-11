@@ -20,3 +20,4 @@ Route::get('/', function () {
 
 Route::get('/task', 'TaskController@index');
 Route::get('/api/tasks', 'TaskController@getTasks');
+Route::get('/api/roles', 'RolesController@index');

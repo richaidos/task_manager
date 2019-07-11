@@ -1788,21 +1788,66 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['taskList'],
   data: function data() {
     return {
-      statusSearch: false
+      statusSearch: false,
+      roles: [],
+      resultData: [],
+      searchText: '',
+      filterParams: {
+        role_id: "0",
+        responsible: null,
+        producer: null,
+        title: null,
+        status: null,
+        last_date: null
+      }
     };
   },
-  mounted: function mounted() {},
+  mounted: function mounted() {
+    var _this = this;
+
+    axios.get('/api/roles', {}).then(function (response) {
+      if (response.data.status == "success") {
+        _this.statusSearch = false;
+        _this.roles = response.data.roles.data;
+      }
+    })["catch"](function (error) {
+      console.log(error.response.data);
+    });
+  },
   methods: {
     closeResult: function closeResult() {
       this.statusSearch = false;
     },
     onFokusResult: function onFokusResult() {
       this.statusSearch = true;
+    },
+    doFilter: function doFilter() {
+      var _this2 = this;
+
+      axios.get('/api/tasks', {
+        params: {
+          res: this.filterParams
+        }
+      }).then(function (response) {
+        console.log(response);
+
+        if (response.data.status == "success") {
+          _this2.statusSearch = false;
+          _this2.resultData = response.data.tasks.data;
+
+          _this2.$root.$emit('set-tasks-result', _this2.resultData);
+        } else if (response.data.status == "error") {
+          /*
+          this.errorNotification();
+          */
+        }
+      })["catch"](function (error) {
+        console.log(error.response.data);
+      });
     }
   }
 });
@@ -1832,7 +1877,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['taskList'],
+  props: ['tasklist'],
   data: function data() {
     return {
       statusSearch: false,
@@ -1840,11 +1885,16 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
+    var _this = this;
+
     this.loadTasks();
+    this.$root.$on('set-tasks-result', function (resultData) {
+      _this.setTasksResult(resultData);
+    });
   },
   methods: {
     loadTasks: function loadTasks() {
-      var _this = this;
+      var _this2 = this;
 
       axios.get('/api/tasks', {
         /*item_id: this.itemId,
@@ -1854,8 +1904,8 @@ __webpack_require__.r(__webpack_exports__);
         changed: this.changed*/
       }).then(function (response) {
         if (response.data.status == "success") {
-          _this.statusSearch = false;
-          _this.tasks = response.data.tasks.data;
+          _this2.statusSearch = false;
+          _this2.tasks = response.data.tasks.data;
         } else if (response.data.status == "error") {
           /*
           this.errorNotification();
@@ -1871,10 +1921,11 @@ __webpack_require__.r(__webpack_exports__);
         if (key.id === 3) {
           st = true;
         }
-
-        console.log(key);
       });
       return st;
+    },
+    setTasksResult: function setTasksResult(resultData) {
+      this.tasks = resultData;
     }
   }
 });
@@ -37223,19 +37274,283 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "col-lg-6 z-top" }, [
-    _c("div", [
+    _c("div", { staticClass: "z-top" }, [
       _c("input", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.searchText,
+            expression: "searchText"
+          }
+        ],
         staticClass: "form-control mr-sm-2",
         attrs: {
           type: "search",
           placeholder: "Фильтр + поиск",
           "aria-label": "Search"
         },
-        on: { focus: _vm.onFokusResult }
+        domProps: { value: _vm.searchText },
+        on: {
+          focus: _vm.onFokusResult,
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.searchText = $event.target.value
+          }
+        }
       }),
       _vm._v(" "),
       _vm.statusSearch === true
-        ? _c("div", { staticClass: "search-results" }, [_vm._m(0)])
+        ? _c("div", { staticClass: "search-results" }, [
+            _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-md-12" }, [
+                _c(
+                  "form",
+                  {
+                    staticClass: "needs-validation",
+                    attrs: { id: "filter_search", novalidate: "" },
+                    on: {
+                      submit: function($event) {
+                        $event.preventDefault()
+                        return _vm.doFilter()
+                      }
+                    }
+                  },
+                  [
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._m(0),
+                      _vm._v(" "),
+                      _c(
+                        "select",
+                        {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.filterParams.role_id,
+                              expression: "filterParams.role_id"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { name: "role_id", id: "role_id" },
+                          on: {
+                            change: function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.filterParams,
+                                "role_id",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            }
+                          }
+                        },
+                        [
+                          _c(
+                            "option",
+                            { attrs: { value: "0", selected: "" } },
+                            [_vm._v("Не указан")]
+                          ),
+                          _vm._v(" "),
+                          _vm._l(_vm.roles, function(role) {
+                            return _c(
+                              "option",
+                              { key: role.id, domProps: { value: role.id } },
+                              [_vm._v(_vm._s(role.name))]
+                            )
+                          })
+                        ],
+                        2
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._m(1),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filterParams.responsible,
+                            expression: "filterParams.responsible"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "text",
+                          name: "responsible",
+                          id: "responsible",
+                          placeholder: "Фамилия Имя"
+                        },
+                        domProps: { value: _vm.filterParams.responsible },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(
+                              _vm.filterParams,
+                              "responsible",
+                              $event.target.value
+                            )
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._m(2),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filterParams.producer,
+                            expression: "filterParams.producer"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "text",
+                          name: "producer",
+                          id: "producer",
+                          placeholder: "Фамилия Имя"
+                        },
+                        domProps: { value: _vm.filterParams.producer },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(
+                              _vm.filterParams,
+                              "producer",
+                              $event.target.value
+                            )
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._m(3),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.searchText,
+                            expression: "searchText"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "text",
+                          name: "title",
+                          id: "title",
+                          placeholder: ""
+                        },
+                        domProps: { value: _vm.searchText },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.searchText = $event.target.value
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._m(4),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filterParams.status,
+                            expression: "filterParams.status"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "text",
+                          name: "status",
+                          id: "status",
+                          placeholder: ""
+                        },
+                        domProps: { value: _vm.filterParams.status },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(
+                              _vm.filterParams,
+                              "status",
+                              $event.target.value
+                            )
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._m(5),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filterParams.last_date,
+                            expression: "filterParams.last_date"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "date",
+                          name: "last_date",
+                          id: "last_date",
+                          placeholder: ""
+                        },
+                        domProps: { value: _vm.filterParams.last_date },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(
+                              _vm.filterParams,
+                              "last_date",
+                              $event.target.value
+                            )
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _vm._m(6)
+                  ]
+                )
+              ])
+            ])
+          ])
         : _vm._e()
     ]),
     _vm._v(" "),
@@ -37249,138 +37564,65 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-md-12" }, [
-        _c(
-          "form",
-          { staticClass: "needs-validation", attrs: { novalidate: "" } },
-          [
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { attrs: { for: "role_id" } }, [
-                _c("small", [_vm._v("Роль:")])
-              ]),
-              _vm._v(" "),
-              _c(
-                "select",
-                {
-                  staticClass: "form-control",
-                  attrs: { name: "role_id", id: "role_id" }
-                },
-                [
-                  _c("option", { attrs: { value: "0", selected: "" } }, [
-                    _vm._v("Не указан")
-                  ]),
-                  _vm._v(" "),
-                  _c("option", { attrs: { value: "1" } }, [
-                    _vm._v("Администратор")
-                  ]),
-                  _vm._v(" "),
-                  _c("option", { attrs: { value: "2" } }, [
-                    _vm._v("Модертатор")
-                  ]),
-                  _vm._v(" "),
-                  _c("option", { attrs: { value: "3" } }, [
-                    _vm._v("Тех. Поддержка")
-                  ])
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { attrs: { for: "responsible" } }, [
-                _c("small", [_vm._v("Ответственный")])
-              ]),
-              _vm._v(" "),
-              _c("input", {
-                staticClass: "form-control",
-                attrs: {
-                  type: "text",
-                  name: "responsible",
-                  id: "responsible",
-                  placeholder: "Фамилия Имя"
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { attrs: { for: "Producer" } }, [
-                _c("small", [_vm._v("Постановщик")])
-              ]),
-              _vm._v(" "),
-              _c("input", {
-                staticClass: "form-control",
-                attrs: {
-                  type: "text",
-                  name: "Producer",
-                  id: "Producer",
-                  placeholder: "Фамилия Имя"
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { attrs: { for: "title" } }, [
-                _c("small", [_vm._v("Название")])
-              ]),
-              _vm._v(" "),
-              _c("input", {
-                staticClass: "form-control",
-                attrs: {
-                  type: "text",
-                  name: "title",
-                  id: "title",
-                  placeholder: ""
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { attrs: { for: "status" } }, [
-                _c("small", [_vm._v("Статус")])
-              ]),
-              _vm._v(" "),
-              _c("input", {
-                staticClass: "form-control",
-                attrs: {
-                  type: "text",
-                  name: "status",
-                  id: "status",
-                  placeholder: ""
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { attrs: { for: "last_date" } }, [
-                _c("small", [_vm._v("Крайний срок")])
-              ]),
-              _vm._v(" "),
-              _c("input", {
-                staticClass: "form-control",
-                attrs: {
-                  type: "date",
-                  name: "last_date",
-                  id: "last_date",
-                  placeholder: ""
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c(
-              "button",
-              { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-              [
-                _c("i", {
-                  staticClass: "fa fa-search",
-                  attrs: { "aria-hidden": "true" }
-                }),
-                _vm._v(" Найти")
-              ]
-            )
-          ]
-        )
-      ])
+    return _c("label", { attrs: { for: "role_id" } }, [
+      _c("small", [_vm._v("Роль:")])
     ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("label", { attrs: { for: "responsible" } }, [
+      _c("small", [_vm._v("Ответственный")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("label", { attrs: { for: "producer" } }, [
+      _c("small", [_vm._v("Постановщик")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("label", { attrs: { for: "title" } }, [
+      _c("small", [_vm._v("Название")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("label", { attrs: { for: "status" } }, [
+      _c("small", [_vm._v("Статус")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("label", { attrs: { for: "last_date" } }, [
+      _c("small", [_vm._v("Крайний срок")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      { staticClass: "btn btn-primary", attrs: { type: "submit" } },
+      [
+        _c("i", {
+          staticClass: "fa fa-search",
+          attrs: { "aria-hidden": "true" }
+        }),
+        _vm._v(" Найти")
+      ]
+    )
   }
 ]
 render._withStripped = true

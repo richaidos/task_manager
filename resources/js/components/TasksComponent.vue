@@ -14,7 +14,7 @@
 <script>
     export default {
         props: [
-            'taskList'
+            'tasklist',
         ],
         data(){
             return {
@@ -24,6 +24,9 @@
         },
         mounted() {
             this.loadTasks();
+            this.$root.$on('set-tasks-result', resultData => {
+                this.setTasksResult(resultData)
+            });
         },
         methods: {
             loadTasks(){
@@ -52,9 +55,11 @@
                     if(key.id === 3){
                         st = true;
                     }
-                    console.log( key)
                 })
                 return st;
+            },
+            setTasksResult(resultData){
+                this.tasks = resultData;
             }
         }
     }
