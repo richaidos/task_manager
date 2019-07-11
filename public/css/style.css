@@ -43,3 +43,6 @@
 .z-top {
     z-index: 1001;
 }
+.card p {
+    margin: 0.5rem 0;
+}

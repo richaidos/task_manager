@@ -30,9 +30,6 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        @foreach($tasks as $task)
-                            {{$task->title}}
-                        @endforeach
                         <tasks-view></tasks-view>
                     </div>
                 </div>

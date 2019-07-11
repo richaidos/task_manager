@@ -13,11 +13,11 @@
 
 */
 
-Route::get('/', function () {
+/*Route::get('/', function () {
     return view('welcome');
-});
+});*/
 
 
-Route::get('/task', 'TaskController@index');
+Route::get('/', 'TaskController@index');
 Route::get('/api/tasks', 'TaskController@getTasks');
 Route::get('/api/roles', 'RolesController@index');

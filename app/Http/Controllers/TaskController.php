@@ -7,26 +7,15 @@ use App\Task;
 
 class TaskController extends Controller
 {
-    //
 
      public function index(){
-/*
-        $tasks = Task::with(['favorite' => function($q) {
-                $q->where('user_id', Auth::user()->id);
-            }])->get();
-*/
-
         return view('tasks.main', [
            'tasks' => Task::get()
         ]);
     }
 
     public function getTasks(Request $request){
-/*        return response()->json([
-                'tasks' => json_encode(Task::paginate(), JSON_UNESCAPED_UNICODE),
-                'msg'    => 'Good',
-            ], 201);*/
-        $tasks = Task::with('status');
+        $tasks = Task::with('status')->with('responsible');
         if($request->input('res')){
             $params = json_decode($request->input('res'));
             if($params->role_id != 0){
@@ -34,13 +23,33 @@ class TaskController extends Controller
             }
             if($params->responsible != null){
                 $arr = explode(',', $params->responsible);
-                $resp = '';
                 foreach($arr as $ar){
-                    $resp = $ar;
-                    $tasks = $tasks->with(['responsible' => function($q) {
-                        $q->where('name', 'like', '%' . self::$resp . '%');
-                    }]);
+                    $tasks = $tasks->whereHas('responsible', function($q) use ($ar){
+                        $q->where('name', 'like', '%' . $ar . '%');
+                    });
                 }
+            }
+            if($params->producer != null){
+                $arr = explode(',', $params->producer);
+                foreach($arr as $ar){
+                    $tasks = $tasks->whereHas('producer', function($q) use ($ar){
+                        $q->where('name', 'like', '%' . $ar . '%');
+                    });
+                }
+            }
+            if($params->title != null){
+                $tasks = $tasks->where('title', 'like', '%' . $params->title . '%');
+            }
+            if($params->status != null){
+                $arr = explode(',', $params->status);
+                foreach($arr as $ar){
+                    $tasks = $tasks->whereHas('status', function($q) use ($ar){
+                        $q->where('title', 'like', '%' . $ar . '%');
+                    });
+                }
+            }
+            if($params->last_date != null){
+                $tasks = $tasks->whereDate('deadline', '<', date($params->last_date));
             }
         }
 

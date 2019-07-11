@@ -1788,6 +1788,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['taskList'],
   data: function data() {
@@ -1795,7 +1796,6 @@ __webpack_require__.r(__webpack_exports__);
       statusSearch: false,
       roles: [],
       resultData: [],
-      searchText: '',
       filterParams: {
         role_id: "0",
         responsible: null,
@@ -1825,6 +1825,17 @@ __webpack_require__.r(__webpack_exports__);
     onFokusResult: function onFokusResult() {
       this.statusSearch = true;
     },
+    resetData: function resetData() {
+      this.filterParams = {
+        role_id: "0",
+        responsible: null,
+        producer: null,
+        title: null,
+        status: null,
+        last_date: null
+      };
+      this.doFilter();
+    },
     doFilter: function doFilter() {
       var _this2 = this;
 
@@ -1841,9 +1852,7 @@ __webpack_require__.r(__webpack_exports__);
 
           _this2.$root.$emit('set-tasks-result', _this2.resultData);
         } else if (response.data.status == "error") {
-          /*
-          this.errorNotification();
-          */
+          console.log('error');
         }
       })["catch"](function (error) {
         console.log(error.response.data);
@@ -1896,13 +1905,7 @@ __webpack_require__.r(__webpack_exports__);
     loadTasks: function loadTasks() {
       var _this2 = this;
 
-      axios.get('/api/tasks', {
-        /*item_id: this.itemId,
-        count: this.count,
-        attributes:tempAttr,
-        user_id: this.authUser.id,
-        changed: this.changed*/
-      }).then(function (response) {
+      axios.get('/api/tasks', {}).then(function (response) {
         if (response.data.status == "success") {
           _this2.statusSearch = false;
           _this2.tasks = response.data.tasks.data;
@@ -37280,8 +37283,8 @@ var render = function() {
           {
             name: "model",
             rawName: "v-model",
-            value: _vm.searchText,
-            expression: "searchText"
+            value: _vm.filterParams.title,
+            expression: "filterParams.title"
           }
         ],
         staticClass: "form-control mr-sm-2",
@@ -37290,14 +37293,14 @@ var render = function() {
           placeholder: "Фильтр + поиск",
           "aria-label": "Search"
         },
-        domProps: { value: _vm.searchText },
+        domProps: { value: _vm.filterParams.title },
         on: {
           focus: _vm.onFokusResult,
           input: function($event) {
             if ($event.target.composing) {
               return
             }
-            _vm.searchText = $event.target.value
+            _vm.$set(_vm.filterParams, "title", $event.target.value)
           }
         }
       }),
@@ -37452,8 +37455,8 @@ var render = function() {
                           {
                             name: "model",
                             rawName: "v-model",
-                            value: _vm.searchText,
-                            expression: "searchText"
+                            value: _vm.filterParams.title,
+                            expression: "filterParams.title"
                           }
                         ],
                         staticClass: "form-control",
@@ -37463,13 +37466,17 @@ var render = function() {
                           id: "title",
                           placeholder: ""
                         },
-                        domProps: { value: _vm.searchText },
+                        domProps: { value: _vm.filterParams.title },
                         on: {
                           input: function($event) {
                             if ($event.target.composing) {
                               return
                             }
-                            _vm.searchText = $event.target.value
+                            _vm.$set(
+                              _vm.filterParams,
+                              "title",
+                              $event.target.value
+                            )
                           }
                         }
                       })
@@ -37545,7 +37552,23 @@ var render = function() {
                       })
                     ]),
                     _vm._v(" "),
-                    _vm._m(6)
+                    _vm._m(6),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-secondary",
+                        attrs: { type: "button" },
+                        on: { click: _vm.resetData }
+                      },
+                      [
+                        _c("i", {
+                          staticClass: "fa fa-times",
+                          attrs: { "aria-hidden": "true" }
+                        }),
+                        _vm._v(" Сбросить")
+                      ]
+                    )
                   ]
                 )
               ])

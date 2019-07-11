@@ -31,11 +31,6 @@
         methods: {
             loadTasks(){
                 axios.get('/api/tasks', {
-                            /*item_id: this.itemId,
-                            count: this.count,
-                            attributes:tempAttr,
-                            user_id: this.authUser.id,
-                            changed: this.changed*/
                         }).then((response) => {
                             if(response.data.status == "success"){
                                 this.statusSearch = false;

@@ -7,7 +7,7 @@
             placeholder="Фильтр + поиск"
             aria-label="Search"
             @focus="onFokusResult"
-            v-model="searchText"
+            v-model="filterParams.title"
             >
 
             <div v-if="statusSearch === true" class="search-results">
@@ -31,7 +31,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="title"><small>Название</small></label>
-                                <input v-model="searchText" type="text" class="form-control" name="title" id="title" placeholder="">
+                                <input v-model="filterParams.title" type="text" class="form-control" name="title" id="title" placeholder="">
                             </div>
                             <div class="form-group">
                                 <label for="status"><small>Статус</small></label>
@@ -42,6 +42,7 @@
                                 <input v-model="filterParams.last_date" type="date" class="form-control" name="last_date" id="last_date" placeholder="">
                             </div>
                             <button class="btn btn-primary" type="submit"><i class="fa fa-search" aria-hidden="true"></i> Найти</button>
+                            <button class="btn btn-secondary" @click="resetData" type="button"><i class="fa fa-times" aria-hidden="true"></i> Сбросить</button>
                         </form>
                     </div>
                 </div>
@@ -66,7 +67,6 @@
                 statusSearch: false,
                 roles: [],
                 resultData: [],
-                searchText: '',
                 filterParams: {
                     role_id: "0",
                     responsible: null,
@@ -95,6 +95,17 @@
             onFokusResult(){
                 this.statusSearch = true;
             },
+            resetData(){
+                this.filterParams = {
+                        role_id: "0",
+                        responsible: null,
+                        producer: null,
+                        title: null,
+                        status: null,
+                        last_date: null
+                }
+                this.doFilter();
+            },
             doFilter(){
                 axios.get('/api/tasks', {
                     params: {
@@ -109,9 +120,7 @@
                         this.$root.$emit('set-tasks-result', this.resultData);
 
                     }else if(response.data.status == "error"){
-                        /*
-                        this.errorNotification();
-                        */
+                        console.log('error')
                     }
                 }).catch((error) => {
                     console.log(error.response.data)
