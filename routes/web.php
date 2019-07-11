@@ -19,4 +19,4 @@ Route::get('/', function () {
 
 
 Route::get('/task', 'TaskController@index');
-Route::get('/getTasks', 'TaskController@getTasks');
+Route::get('/api/tasks', 'TaskController@getTasks');

@@ -3,11 +3,9 @@
         <div class="card-body">
             <h5 class="card-title">Задачи</h5>
             <h6 class="card-subtitle mb-2 text-muted">Список всех задач</h6>
-            <div class="border-bottom" >
-                <p><s><i class="fa fa-circle" aria-hidden="true"></i> Косякий при авторизации и регистрации</s></p>
-            </div>
-            <div class="border-bottom">
-                <p><i class="fa fa-circle-o-notch" aria-hidden="true"></i> Экспорт статистики не работает</p>
+            <div class="border-bottom" v-for="task in tasks" :key="task.id">
+                <p v-if="checkFinishedStatus(task.status)"><s><i class="fa fa-circle" aria-hidden="true"></i> {{task.title}}</s></p>
+                <p v-else><i class="fa fa-circle" aria-hidden="true"></i> {{task.title}}</p>
             </div>
         </div>
     </div>
@@ -20,33 +18,43 @@
         ],
         data(){
             return {
-                statusSearch: false
+                statusSearch: false,
+                tasks: []
             }
         },
         mounted() {
-
+            this.loadTasks();
         },
         methods: {
-            loadAllTasks(){
-                /*
-                axios.post('/cart/store', {
-                            item_id: this.itemId,
+            loadTasks(){
+                axios.get('/api/tasks', {
+                            /*item_id: this.itemId,
                             count: this.count,
                             attributes:tempAttr,
                             user_id: this.authUser.id,
-                            changed: this.changed
+                            changed: this.changed*/
                         }).then((response) => {
                             if(response.data.status == "success"){
-                                this.successNotification(response.data.msg);
-                                this.changed = false;
+                                this.statusSearch = false;
+                                this.tasks = response.data.tasks.data;
                             }else if(response.data.status == "error"){
+                                /*
                                 this.errorNotification();
+                                */
                             }
                         }).catch((error) => {
                             console.log(error.response.data)
-                            this.errorNotification();
-                        });
-*/
+                });
+            },
+            checkFinishedStatus(statuses){
+                var st = false;
+                statuses.forEach(function(key, value){
+                    if(key.id === 3){
+                        st = true;
+                    }
+                    console.log( key)
+                })
+                return st;
             }
         }
     }

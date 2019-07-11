@@ -20,7 +20,18 @@ class TaskController extends Controller
            'tasks' => Task::get()
         ]);
     }
-    public function getTasks(Request $request){
 
+    public function getTasks(Request $request){
+/*        return response()->json([
+                'tasks' => json_encode(Task::paginate(), JSON_UNESCAPED_UNICODE),
+                'msg'    => 'Good',
+            ], 201);*/
+        $tasks = Task::with('status')->paginate();
+
+        return response()->json([
+            'tasks' => $tasks,
+            'status' => 'success'
+        ], 200, ['Content-Type' => 'application/json;charset=UTF-8', 'Charset' => 'utf-8'],
+            JSON_UNESCAPED_UNICODE);
     }
 }
